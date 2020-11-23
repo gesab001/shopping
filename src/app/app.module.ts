@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { BarcodeScannerLivestreamModule } from "ngx-barcode-scanner";
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { BarcodeScannerLivestreamModule } from "ngx-barcode-scanner";
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BarcodeScannerLivestreamModule
+    BrowserAnimationsModule,
+	FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
