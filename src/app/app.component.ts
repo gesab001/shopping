@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, AfterViewInit} from "@angular/core";
+import { Component, ChangeDetectorRef, AfterViewInit, ViewChild} from "@angular/core";
 import Quagga from 'quagga';
 import {NgForm} from '@angular/forms';
 
@@ -8,20 +8,26 @@ import {NgForm} from '@angular/forms';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements AfterViewInit {
+	
+  @ViewChild("f") productForm: NgForm;	
   title = 'shopping';
+
   errorMessage: string;
   public lastScannedCode: string;
+  public currentProductName: string;
+  public currentDescription: string;
+  public currentPrice: number;
   private lastScannedCodeDate: number;
-  public shoppingCart = [1,2,3];
-  public nowCode: number;
-  public quantity = 1;
+  public shoppingCart = [];
+  public currentQuantity = 1;
   public stores = ["Countdown", "PakNSave", "New World", "Supervalue", "FreshChoice", "DH Mart", "Spice World"]
-  
+  public total = 0;
  
   
   constructor(private changeDetectorRef: ChangeDetectorRef){}
   
   ngAfterViewInit(): void {
+
     if (!navigator.mediaDevices || !(typeof navigator.mediaDevices.getUserMedia === 'function')) {
       this.errorMessage = 'getUserMedia is not supported';
       return;
@@ -61,19 +67,32 @@ export class AppComponent implements AfterViewInit {
   
    onBarcodeScanned(code: string) {
     console.log(code);
+
     // ignore duplicates for an interval of 1.5 seconds
-    const r = window.confirm(code);
-    if(r){
-	  this.shoppingCart.push(Number(code));
-      //window.alert(this.shoppingCart);
-      window.open('https://shop.countdown.co.nz/shop/searchproducts?search='+code, '_blank');
-	  
-    }
- /*   const now = new Date().getTime();
-    if (code === this.lastScannedCode && (now < this.lastScannedCodeDate + 1500)) {
+    const now = new Date().getTime();
+    if (code === this.lastScannedCode && (now < this.lastScannedCodeDate + 30000)) {
       return;
-    }
-*/
+    }else{
+		const r = window.confirm(code);
+		if(r){
+		  //this.shoppingCart.push(Number(code));
+		  //window.alert(this.shoppingCart);
+		  //window.open('https://shop.countdown.co.nz/shop/searchproducts?search='+code, '_blank');
+		  this.lastScannedCode = code;
+		  this.lastScannedCodeDate = now;
+		  if(localStorage.getItem(code)!=null){
+			   var item = JSON.parse(localStorage.getItem(this.lastScannedCode));
+			   this.productForm.controls['barcode'].setValue(code);
+			   this.productForm.controls['productName'].setValue(item.productName);
+			   this.productForm.controls['description'].setValue(item.description);
+			   this.productForm.controls['price'].setValue(item.price);
+		  }else{	
+		       this.productForm.resetForm();
+		       this.productForm.controls['barcode'].setValue(code);		  
+		  }
+	}
+   }
+
     // ignore unknown articles
   //  const article = this.catalogue.find(a => a.ean === code);
    // if (!article) {
@@ -82,7 +101,7 @@ export class AppComponent implements AfterViewInit {
 
     //this.shoppingCart.addArticle(article);
 
-    this.lastScannedCode = code;
+    
   //  this.lastScannedCodeDate = now;
     //this.beepService.beep();
     //this.changeDetectorRef.detectChanges();
@@ -94,6 +113,21 @@ export class AppComponent implements AfterViewInit {
 	  console.log(f.value.description);
 	  console.log(f.value.price);
 	  console.log(f.value.quantity);
+	  var subtotal = f.value.price * f.value.quantity;
+	  this.total = this.total + subtotal;
+	  var jsonobj = JSON.stringify({"productName": f.value.productName, "description": f.value.description, "price": f.value.price});
+	  localStorage.setItem(this.lastScannedCode, jsonobj); 
+	  alert("added :" + jsonobj);
+	  jsonobj = JSON.stringify({"productName": f.value.productName, "description": f.value.description, "price": f.value.price, "quantity": f.value.quantity, "subtotal": subtotal});
+	  this.shoppingCart.push(JSON.parse(jsonobj));
+	  f.resetForm();
 	  
+  }
+  
+  removeItem(i: number) {
+	  alert("deleted" + i);
+	  var subtotal = this.shoppingCart[i].subtotal;
+	  this.total = this.total - subtotal;
+	  this.shoppingCart.splice(i, 1);
   }
 }

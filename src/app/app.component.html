@@ -1,23 +1,31 @@
-<div>Shopping</div>
-<div>Cart</div>
+<div>{{title}}</div>
+<div>Cart {{shoppingCart.length}}</div>
 <div id="interactive" class="viewport">
   <!-- QuaggaJS will populate this element -->
 </div>
 
 <div>
 <h1>Create New Item</h1>
-
   <form #f="ngForm" (ngSubmit)="onSubmit(f)" ngNativeValidate>
      <label>Store</label><select><option *ngFor="let store of stores">{{store}}</option></select><br><br> 
-     <label>Barcode</label><input ngModel name="barcode" type="text" required  #barcode="ngModel" value="{{lastScannedCode}}" placeholder="barcode"/><a target="_blank" href="https://shop.countdown.co.nz/shop/searchproducts?search={{lastScannedCode}}">Search</a><br><br>
-     <label>Name</label><input ngModel name="productName" required #productName="ngModel" type="text" placeholder="product name" /><br><br>
-	 <label>Description</label><input ngModel name="description" required #description="ngModel" placeholder="description" type="text" /><br><br> 
-     <label>Price</label><input ngModel name="price" type="number" required #price="ngModel" placeholder="0.00"/><br><br>
-     <label>Quantity</label><input ngModel name="quantity" type="number" required #quantity="ngModel" value="1"/><br><br>
-     <label>Images</label><input ngModel type="file" name="file[]" #images="ngModel" multiple /><br><br>
+     <label>Barcode</label><input ngModel name="barcode" type="text" required   placeholder="barcode"/><a target="_blank" href="https://shop.countdown.co.nz/shop/searchproducts?search={{lastScannedCode}}">Search</a><br><br>
+     <label>Name</label><input ngModel name="productName" required  type="text"  /><br><br>
+	 <label>Description</label><input ngModel name="description" required  placeholder="description"  type="text" /><br><br> 
+     <label>Price</label><input ngModel name="price" type="number" step="0.01" required  placeholder="0.00"/><br><br>
+     <label>Quantity</label><input ngModel name="quantity" type="number" required /><br><br>
      <!-- <label>Video</label><input type="file"  /><br><br>	  -->
 	 
 	 <button>Submit</button>
   </form>
 </div>
+
 <div>
+<h1>Total: ${{total}}</h1>
+<div>
+
+<div>
+<h1>Added Items</h1>
+<ol>
+<li *ngFor="let item of shoppingCart; let i = index" (click)="removeItem(i)"> {{item.barcode}} {{item.productName}} {{item.price}} {{item.quantity}} {{item.subtotal}}<button >delete</button></li><br><br>
+</ol>
+</div>
